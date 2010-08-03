@@ -12,6 +12,8 @@ Puppet::Type.type(:logical_volume).provide :lvm do
         args = ['-n', @resource[:name]]
         if @resource[:size]
             args.push('--size', @resource[:size])
+        elsif @resource[:initial_size]
+            args.push('--size', @resource[:initial_size])
         end
         args << @resource[:volume_group]
         lvcreate(*args)
@@ -32,7 +34,7 @@ Puppet::Type.type(:logical_volume).provide :lvm do
 
         raw = lvs('--noheading', '--unit', unit, path)
 
-        if raw =~ /\s+(\d+)\.(\d+)#{unit}/
+        if raw =~ /\s+(\d+)\.(\d+)#{unit}/i
             if $2.to_i == 00
                 return $1 + unit.capitalize
             else
